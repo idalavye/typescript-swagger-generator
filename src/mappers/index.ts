@@ -4,13 +4,9 @@ import { frS } from '../controllers/swagger_controller';
 export const mapModelsToParamsWithFr = (model, type) => {
   const returnModel = frS.create(model);
 
-  console.log(returnModel);
-
   const array = Object.keys(returnModel).map(function(key) {
     return [key, returnModel[key]];
   });
-
-  console.log(array);
 
   let list = [];
   for (var i = 0; i < array.length; i++) {
