@@ -1,0 +1,25 @@
+{
+  "name": "typescript-swagger-generator",
+  "version": "1.0.0",
+  "description": "Typescript swagger generator for express",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/idalavye/typescript-swagger-generator.git"
+  },
+  "keywords": [
+    "typescript",
+    "swagger",
+    "express"
+  ],
+  "author": "Ibrahim Dagdelen",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/idalavye/typescript-swagger-generator/issues"
+  },
+  "homepage": "https://github.com/idalavye/typescript-swagger-generator#readme"
+}
