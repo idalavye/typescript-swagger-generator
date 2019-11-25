@@ -1,40 +1,40 @@
 //@ts-ignore
 import { frS } from '../controllers/swagger_controller';
 
-export const mapModelsToParamsWithFr = (model, type) => {
+export const mapModelsToParamsWithFr = (body, model, type) => {
   const returnModel = frS.create(model);
 
   const array = Object.keys(returnModel).map(function(key) {
     return [key, returnModel[key]];
   });
 
-  let list = [];
+  let newBody = body;
   for (var i = 0; i < array.length; i++) {
-    list.push({
+    newBody[array[i][0]] = {
       prop: array[i][0],
       type: getType(array[i][1]),
       in: type,
       required: type === 'path' ? true : false,
       description: ''
-    });
+    };
   }
 
-  return list;
+  return newBody;
 };
 
-export const mapModelsToParams = (model, type) => {
-  let list = [];
+export const mapModelsToParams = (body, model, type) => {
+  let newBody = body;
   for (var i = 0; i < model.length; i++) {
-    list.push({
+    newBody[model[i]] = {
       prop: model[i],
       type: 'string',
       in: type,
       required: type === 'path' ? true : false,
       description: ''
-    });
+    };
   }
 
-  return list;
+  return newBody;
 };
 
 export const mapReturnModel = model => {
@@ -99,7 +99,8 @@ const getType = item => {
   }
 
   if (Array.isArray(item)) {
-    type = 'string[]';
+    type = 'string';
   }
+
   return type;
 };

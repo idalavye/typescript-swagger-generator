@@ -1,5 +1,9 @@
-import { routes, tags, definitions } from '../controllers/route-controller';
-import { listenerCount } from 'cluster';
+import {
+  routes,
+  tags,
+  definitions,
+  defaultParams
+} from '../controllers/route-controller';
 
 export const swaggerizeObj = swaggerObject => {
   swaggerObject.swagger = '2.0';
@@ -18,6 +22,7 @@ export const mapRoutes = swaggerObject => {
     let route: any = routes[i].route;
     let method: any = routes[i].method;
 
+    //@ts-ignore
     obj[route] = Object.assign({}, obj[route], {
       [method]: {
         parameters: mapToParameters(routes[i]),
@@ -49,20 +54,30 @@ const mapToParameters = models => {
     });
   }
 
-  routes.forEach(model => {
-    const propList = model;
-
-    for (let i = 0; i < propList.length; i++) {
+  for (let prop in routes) {
+    if (routes[prop].type !== 'object')
       list.push({
-        name: propList[i].prop,
-        type: propList[i].type,
-        in: propList[i].in,
-        required: propList[i].required,
-        description: propList[i].description,
-        default: propList[i].default
+        name: routes[prop].prop,
+        type: routes[prop].type,
+        in: routes[prop].in,
+        required: routes[prop].required,
+        description: routes[prop].description,
+        default: routes[prop].default
+      });
+  }
+
+  for (let prop in defaultParams) {
+    if (defaultParams[prop].type !== 'object') {
+      list.push({
+        name: routes[prop].prop,
+        type: routes[prop].type,
+        in: routes[prop].in,
+        required: routes[prop].required,
+        description: routes[prop].description,
+        default: routes[prop].default
       });
     }
-  });
+  }
 
   return list;
 };

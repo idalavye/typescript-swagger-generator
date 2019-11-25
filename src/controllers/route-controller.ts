@@ -15,6 +15,7 @@ import {
 export const routes = [];
 export const tags = [];
 export const definitions = {};
+export let defaultParams = {};
 
 export const SwaggerPaths = {
   get(routeName: string) {
@@ -31,12 +32,24 @@ export const SwaggerPaths = {
   }
 };
 
+export const DefaultParams = () => {
+  return {
+    query: (model: string) => {
+      defaultParams = mapModelsToParamsWithFr(defaultParams, model, 'query');
+      return this;
+    },
+    header: (model: string) => {
+      defaultParams = mapModelsToParamsWithFr(defaultParams, model, 'header');
+    }
+  };
+};
+
 const Options = (methodName: string, routeName: string) => {
   return {
     model: {
       route: '',
       method: methodName,
-      body: [],
+      body: {},
       payload: [],
       group: '',
       returns: []
@@ -52,11 +65,19 @@ const Options = (methodName: string, routeName: string) => {
       return this;
     },
     headers: function(model: string) {
-      this.model.body.push(mapModelsToParamsWithFr(model, 'header'));
+      this.model.body = mapModelsToParamsWithFr(
+        this.model.body,
+        model,
+        'header'
+      );
       return this;
     },
     query: function(model: string) {
-      this.model.body.push(mapModelsToParamsWithFr(model, 'query'));
+      this.model.body = mapModelsToParamsWithFr(
+        this.model.body,
+        model,
+        'query'
+      );
       return this;
     },
     group: function(groupName: string, groupDescription: string = '') {
@@ -69,7 +90,13 @@ const Options = (methodName: string, routeName: string) => {
     },
     customize: function(
       paramName: string,
-      { required, defaultValue, type, paramType, description }
+      {
+        required = null,
+        defaultValue = null,
+        type = null,
+        paramType = null,
+        description = null
+      }
     ) {
       const custom: any = {};
 
@@ -89,20 +116,16 @@ const Options = (methodName: string, routeName: string) => {
         custom.description = description;
       }
 
-      this.model.body.forEach((item, index) => {
-        item.forEach((el, index2) => {
-          if (el.prop === paramName) {
-            this.model.body[index][index2] = {
-              ...this.model.body[index][index2],
-              ...custom
-            };
-          }
-        });
-      });
+      if (this.model.body[paramName]) {
+        this.model.body[paramName] = {
+          ...this.model.body[paramName],
+          ...custom
+        };
+      }
 
       return this;
     },
-    returns: function({ statusCode, model, desc = '' }) {
+    returns: function({ statusCode, model = null, desc = '' }) {
       if (model) {
         definitions[model] = mapReturnModel(model);
       }
@@ -118,7 +141,7 @@ const Options = (methodName: string, routeName: string) => {
     end: function() {
       const obj = mapRouteName(routeName);
       this.model.route = obj.newRoute;
-      this.model.body.push(mapModelsToParams(obj.props, 'path'));
+      this.model.body = mapModelsToParams(this.model.body, obj.props, 'path');
       routes.push(this.model);
     }
   };
