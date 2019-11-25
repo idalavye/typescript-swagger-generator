@@ -1,8 +1,9 @@
+//@ts-ignore
 const swaggerUi = require('express-swaggerize-ui');
 
 import { validateOptions } from '../validations/validations';
 import { swaggerizeObj, mapRoutes } from '../helpers/index';
-
+//@ts-ignore
 import fr from 'fixture-repository';
 export const frS = fr;
 
