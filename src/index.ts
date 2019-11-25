@@ -1,4 +1,4 @@
 import { generateSwaggerUi } from './controllers/swagger_controller';
-import { HttpsMethods } from './controllers/route-controller';
+import { SwaggerPaths } from './controllers/route-controller';
 
-export { generateSwaggerUi, HttpsMethods };
+export { generateSwaggerUi, SwaggerPaths };

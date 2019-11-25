@@ -16,7 +16,7 @@ export const routes = [];
 export const tags = [];
 export const definitions = {};
 
-export const HttpsMethods = {
+export const SwaggerPaths = {
   get(routeName: string) {
     return Options(HTTP_GET, routeName);
   },
