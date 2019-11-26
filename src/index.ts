@@ -1,4 +1,4 @@
 import { generateSwaggerUi } from './controllers/swagger_controller';
-import { SwaggerPaths, DefaultParams } from './controllers/route-controller';
+import { SwaggerPaths, UseDefaults } from './controllers/route-controller';
 
-export { generateSwaggerUi, SwaggerPaths, DefaultParams };
+export { generateSwaggerUi, SwaggerPaths, UseDefaults };

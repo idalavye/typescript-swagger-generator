@@ -2,7 +2,8 @@ import {
   mapModelsToParams,
   mapReturnModel,
   mapRouteName,
-  mapModelsToParamsWithFr
+  mapModelsToParamsWithFr,
+  applyDefaultParams
 } from '../mappers/index';
 
 import {
@@ -15,36 +16,89 @@ import {
 export const routes = [];
 export const tags = [];
 export const definitions = {};
-export let defaultParams = {};
 
 export const SwaggerPaths = {
+  defaultParams: null,
   get(routeName: string) {
-    return Options(HTTP_GET, routeName);
+    return Options(HTTP_GET, routeName, this.defaultParams);
   },
   post(routeName: string) {
-    return Options(HTTP_POST, routeName);
+    return Options(HTTP_POST, routeName, this.defaultParams);
   },
   put(routeName: string) {
-    return Options(HTTP_PUT, routeName);
+    return Options(HTTP_PUT, routeName, this.defaultParams);
   },
   delete(routeName: string) {
-    return Options(HTTP_DELETE, routeName);
+    return Options(HTTP_DELETE, routeName, this.defaultParams);
   }
 };
 
-export const DefaultParams = () => {
+export const UseDefaults = {
+  build() {
+    return DefaultOptions();
+  }
+};
+
+const DefaultOptions = () => {
   return {
-    query: (model: string) => {
-      defaultParams = mapModelsToParamsWithFr(defaultParams, model, 'query');
+    model: {
+      body: {},
+      group: '',
+      returns: {}
+    },
+    query: function(model: string) {
+      this.model.body = mapModelsToParamsWithFr(
+        this.model.body,
+        model,
+        'query'
+      );
       return this;
     },
-    header: (model: string) => {
-      defaultParams = mapModelsToParamsWithFr(defaultParams, model, 'header');
+    header: function(model: string) {
+      this.model.body = mapModelsToParamsWithFr(
+        this.model.body,
+        model,
+        'header'
+      );
+      return this;
+    },
+    group: function(groupName: string, groupDescription?: string) {
+      tags.push({
+        name: groupName,
+        description: groupDescription
+      });
+      this.model.group = groupName;
+      return this;
+    },
+    returns: function({ statusCode, model, desc = '' }) {
+      if (model) {
+        definitions[model] = mapReturnModel(model);
+      }
+
+      this.model.returns = {
+        ...this.model.returns,
+        [statusCode]: {
+          ref: model ? `#/definitions/${model}` : null,
+          statusCode: statusCode,
+          description: desc
+        }
+      };
+
+      return this;
+    },
+    end: function(callback) {
+      let swaggerPaths = SwaggerPathsWithDefault;
+      swaggerPaths.defaultParams = this.model;
+      callback(swaggerPaths);
     }
   };
 };
 
-const Options = (methodName: string, routeName: string) => {
+const Options = (
+  methodName: string,
+  routeName: string,
+  defaultParams?: any
+) => {
   return {
     model: {
       route: '',
@@ -52,7 +106,7 @@ const Options = (methodName: string, routeName: string) => {
       body: {},
       payload: [],
       group: '',
-      returns: []
+      returns: {}
     },
     body: function(model: string) {
       if (model) {
@@ -121,6 +175,14 @@ const Options = (methodName: string, routeName: string) => {
           ...this.model.body[paramName],
           ...custom
         };
+      } else if (type && paramName && paramType) {
+        this.model.body[paramName] = {
+          prop: paramName,
+          type: type,
+          in: paramType,
+          required: type === 'path' ? true : false,
+          description: description ? description : ''
+        };
       }
 
       return this;
@@ -130,11 +192,14 @@ const Options = (methodName: string, routeName: string) => {
         definitions[model] = mapReturnModel(model);
       }
 
-      this.model.returns.push({
-        ref: model ? `#/definitions/${model}` : null,
-        statusCode: statusCode,
-        description: desc
-      });
+      this.model.returns = {
+        ...this.model.returns,
+        [statusCode]: {
+          ref: model ? `#/definitions/${model}` : null,
+          statusCode: statusCode,
+          description: desc
+        }
+      };
 
       return this;
     },
@@ -142,7 +207,25 @@ const Options = (methodName: string, routeName: string) => {
       const obj = mapRouteName(routeName);
       this.model.route = obj.newRoute;
       this.model.body = mapModelsToParams(this.model.body, obj.props, 'path');
+      if (defaultParams)
+        this.model = applyDefaultParams(this.model, defaultParams);
       routes.push(this.model);
     }
   };
+};
+
+const SwaggerPathsWithDefault = {
+  defaultParams: null,
+  get(routeName: string) {
+    return Options(HTTP_GET, routeName, this.defaultParams);
+  },
+  post(routeName: string) {
+    return Options(HTTP_POST, routeName, this.defaultParams);
+  },
+  put(routeName: string) {
+    return Options(HTTP_PUT, routeName, this.defaultParams);
+  },
+  delete(routeName: string) {
+    return Options(HTTP_DELETE, routeName, this.defaultParams);
+  }
 };

@@ -1,6 +1,6 @@
 {
   "name": "typescript-swagger-generator",
-  "version": "1.2.0",
+  "version": "1.2.5",
   "description": "Typescript swagger generator for express",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
