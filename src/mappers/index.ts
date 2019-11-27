@@ -49,9 +49,13 @@ export const mapModelsToParams = (body, model, type) => {
   return newBody;
 };
 
-export const mapReturnModel = model => {
-  const returnModel = frS.create(model);
-  const array = Object.keys(returnModel).map(function(key) {
+export const mapReturnModel = (model, definitions) => {
+  let returnModel;
+  let array;
+  if (typeof model === 'string') returnModel = frS.create(model);
+  else returnModel = model;
+
+  array = Object.keys(returnModel).map(function(key) {
     return [key, returnModel[key]];
   });
 
@@ -62,10 +66,33 @@ export const mapReturnModel = model => {
 
   for (let i = 0; i < array.length; i++) {
     let name: any = [array[i][0]];
-    obj.properties[name] = {
-      type: getType(array[i][1]),
-      description: ''
-    };
+
+    let typeRes = getType(array[i][1]);
+    if (typeRes === 'object') {
+      if (Array.isArray(array[i][1])) {
+        let arrayBody = getArrayType(array[i][1]);
+        obj.properties[name] = {
+          ...arrayBody
+        };
+      } else {
+        let newArr = returnModel[array[i][0]];
+        let guid = generateGuid();
+
+        obj.properties[name] = {
+          $ref: `#/definitions/${guid}-${array[i][0]}`
+        };
+
+        definitions[`${guid}-${array[i][0]}`] = mapReturnModel(
+          newArr,
+          definitions
+        );
+      }
+    } else {
+      obj.properties[name] = {
+        type: getType(array[i][1]),
+        description: ''
+      };
+    }
   }
 
   return obj;
@@ -146,4 +173,17 @@ const getArrayType = item => {
     },
     collectionFormat: 'multi'
   };
+};
+
+const generateGuid = () => {
+  var result, i, j;
+  result = '';
+  for (j = 0; j < 16; j++) {
+    if (j == 8 || j == 12 || j == 16 || j == 20) result = result + '-';
+    i = Math.floor(Math.random() * 16)
+      .toString(16)
+      .toUpperCase();
+    result = result + i;
+  }
+  return result;
 };
