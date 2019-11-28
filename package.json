@@ -1,6 +1,6 @@
 {
   "name": "typescript-swagger-generator",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Typescript swagger generator for express",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -21,5 +21,9 @@
   "bugs": {
     "url": "https://github.com/idalavye/typescript-swagger-generator/issues"
   },
-  "homepage": "https://github.com/idalavye/typescript-swagger-generator#readme"
+  "homepage": "https://github.com/idalavye/typescript-swagger-generator#readme",
+  "dependencies": {
+    "express-swaggerize-ui": "^1.1.0",
+    "fixture-repository": "^1.4.1"
+  }
 }

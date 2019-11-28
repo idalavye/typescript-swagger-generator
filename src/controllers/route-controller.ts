@@ -72,7 +72,7 @@ const DefaultOptions = () => {
     },
     returns: function({ statusCode, model, desc = '' }) {
       if (model) {
-        definitions[model] = mapReturnModel(model);
+        definitions[model] = mapReturnModel(model, definitions);
       }
 
       this.model.returns = {
@@ -110,7 +110,7 @@ const Options = (
     },
     body: function(model: string) {
       if (model) {
-        definitions[model] = mapReturnModel(model);
+        definitions[model] = mapReturnModel(model, definitions);
       }
 
       this.model.payload.push({
@@ -189,7 +189,7 @@ const Options = (
     },
     returns: function({ statusCode, model = null, desc = '' }) {
       if (model) {
-        definitions[model] = mapReturnModel(model);
+        definitions[model] = mapReturnModel(model, definitions);
       }
 
       this.model.returns = {
